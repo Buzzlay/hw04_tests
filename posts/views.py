@@ -1,9 +1,8 @@
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
-from .models import Post, Group
+from .models import Post, Group, User
 from .forms import PostForm
 
 
@@ -77,6 +76,7 @@ def post_edit(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = PostForm(request.POST or None, instance=post)
     if request.method == "POST" and form.is_valid():
+        assert False, (request.POST, form.cleaned_data, username, post_id, post.id)
         form.save()
         return redirect(
             'post', username, post_id
