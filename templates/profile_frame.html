@@ -6,20 +6,20 @@
       </div>
       <div class="h3 text-muted">
         <!-- username автора -->
-        @{{ author }}
+        @{{ author.username }}
       </div>
     </div>
     <ul class="list-group list-group-flush">
       <li class="list-group-item">
         <div class="h6 text-muted">
-        Подписчиков: XXX <br />
-        Подписан: XXX
+          Подписчиков: XXX <br />
+          Подписан: XXX
         </div>
       </li>
       <li class="list-group-item">
         <div class="h6 text-muted">
           <!-- Количество записей -->
-          Записей: {{ author_posts.count }}
+          Записей: {{ author.posts.count }}
         </div>
       </li>
     </ul>

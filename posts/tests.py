@@ -1,33 +1,38 @@
 from django.test import TestCase, Client
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
 
-from posts.models import Post, User
+from posts.models import Post, User, Group
 
 
 class StaticURLTests(TestCase):
-    # Метод класса должен быть декорирован
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='dimabuslaev')
+        cls.user = User.objects.create_user(username='dimabuslaev', email='dimabuslaev@mail.ru')
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
         cls.unauthorized_client = Client()
 
     def test_homepage(self):
-        response = StaticURLTests.unauthorized_client.get('index')
+        url = reverse_lazy('index')
+        response = self.unauthorized_client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_new_post(self):
-        response = StaticURLTests.authorized_client.post(
+        group = Group.objects.create(title='testgroup', description='test description', slug=1)
+        response = self.authorized_client.post(
             '/new/',
-            {'text': 'Это текст публикации', 'group': 'tolstoyleo'},
+            data={'text': 'текст публикации', 'group': group.slug},
             follow=True
         )
         self.assertEqual(response.status_code, 200)
+        post = get_object_or_404(Post, text='текст публикации')
+        self.assertEqual(post.text, 'текст публикации')
 
     def test_unauthorized_user_newpage(self):
-        response = StaticURLTests.unauthorized_client.get(
+        response = self.unauthorized_client.get(
             '/new/',
             follow=False
         )
@@ -39,16 +44,20 @@ class StaticURLTests(TestCase):
         )
 
     def test_profile_existence(self):
-        StaticURLTests.authorized_client.force_login(self.user)
-        response = StaticURLTests.authorized_client.get(f'/{self.user.username}/')
+        self.authorized_client.force_login(self.user)
+        response = self.authorized_client.get(f'/{self.user.username}/')
         self.assertEqual(response.status_code, 200)
 
     def test_post_edit(self):
-        target_post = Post.objects.create(author=self.user, text='Текст публикации 2')
-        StaticURLTests.authorized_client.post(
-            f'/{self.user.username}/{target_post.id}/edit/',
-            {'text': 'Этот текст публикации изменён', 'group': 'buzzlay'},
+        target_post = Post.objects.create(author=self.user, text='Текст публикации')
+        group = Group.objects.create(title='testgroup', description='test description', slug=1)
+        self.authorized_client.force_login(self.user)
+        response = self.authorized_client.post(
+            f'/{self.user}/{target_post.id}/edit/',
+            {'text': 'Этот текст публикации изменён', 'group': group.id},
             follow=True
         )
-        self.assertEqual(target_post.text, 'Текст публикации')
-        #self.assertEqual(post.group, 'buzzlay')
+        self.assertEqual(response.status_code, 200)
+        post = get_object_or_404(Post, author=self.user)
+        self.assertEqual(post.text, 'Этот текст публикации изменён')
+        self.assertEqual(post.group.title, 'testgroup')
