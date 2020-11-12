@@ -12,7 +12,8 @@ def index(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, "index.html", {
-        'page': page, 'paginator': paginator
+        'page': page,
+        'paginator': paginator
     })
 
 
@@ -23,7 +24,9 @@ def group_posts(request, slug):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, "group.html", {
-        'group': group, 'page': page, 'paginator': paginator
+        'group': group,
+        'page': page,
+        'paginator': paginator
     })
 
 
@@ -45,18 +48,19 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, 'profile.html', {
-        'author': author, 'paginator': paginator, 'page': page
+        'author': author,
+        'paginator': paginator,
+        'page': page
     })
 
 
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     author = post.author
-    context = {
+    return render(request, 'post.html', {
         'post': post,
         'author': author
-    }
-    return render(request, 'post.html', context)
+    })
 
 
 @login_required
@@ -69,5 +73,7 @@ def post_edit(request, username, post_id):
         form.save()
         return redirect('post', username, post_id)
     return render(request, 'post_new.html', {
-        'form': form, 'username': username, 'post': post
-        })
+        'form': form,
+        'username': username,
+        'post': post
+    })
