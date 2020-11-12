@@ -34,7 +34,9 @@ def group_posts(request, slug):
 def new_post(request):
     form = PostForm(request.POST or None)
     if not form.is_valid():
-        return render(request, 'newpost.html', {'form': form})
+        return render(request, 'newpost.html', {
+            'form': form
+        })
     post = form.save(commit=False)
     post.author = request.user
     post.save()
@@ -72,8 +74,7 @@ def post_edit(request, username, post_id):
     if form.is_valid():
         form.save()
         return redirect('post', username, post_id)
-    return render(request, 'post_new.html', {
+    return render(request, 'newpost.html', {
         'form': form,
-        'username': username,
         'post': post
     })

@@ -1,12 +1,22 @@
 {% extends "base.html" %}
-{% block header %}Новая запись{% endblock %}
+{% block header %}
+  {% if 'edit' in request.path %}
+    Редактируем запись
+  {% else %}
+    Новая запись
+  {% endif %}
+{% endblock %}
 {% block content %}
   {% load user_filters %}
 
   <div class="row justify-content-center">
     <div class="col-md-8 p-5">
       <div class="card">
-        <div class="card-header">Новый пост</div>
+        {% if 'edit' in request.path %}
+          <div class="card-header">Редактируем пост</div>
+        {% else %}
+          <div class="card-header">Новый пост</div>
+        {% endif %}
         <div class="card-body">
 
           {% for error in form.errors %}
@@ -15,9 +25,13 @@
               {{ error|escape }}
             </div>
           {% endfor %}
-
-          <form method="post"
-                action="{% url 'new_post' %}">
+          {% if 'edit' in request.path %}
+            <form method="post"
+                  action="{% url 'post_edit' post.author.username post.id %}">
+          {% else %}
+            <form method="post"
+                  action="{% url 'new_post' %}">
+          {% endif %}
             {% csrf_token %}
 
             {% for field in form %}
@@ -37,12 +51,21 @@
                 </div>
               </div>
             {% endfor %}
-            <div class="col-md-6 offset-md-4">
-              <button type="submit"
-                      class="btn btn-primary">
-                Создать
-              </button>
-            </div>
+            {% if 'edit' in request.path %}
+              <div class="col-md-6 offset-md-4">
+                <button type="submit"
+                        class="btn btn-primary">
+                  Сохранить
+                </button>
+              </div>
+            {% else %}
+              <div class="col-md-6 offset-md-4">
+                <button type="submit"
+                        class="btn btn-primary">
+                  Создать
+                </button>
+              </div>
+            {% endif %}
           </form>
         </div> <!-- card body -->
       </div> <!-- card -->
