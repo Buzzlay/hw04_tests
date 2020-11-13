@@ -19,12 +19,12 @@
         {% endif %}
         <div class="card-body">
 
-          {% for error in form.errors %}
-            <div class="alert alert-danger"
-                 role="alert">
-              {{ error|escape }}
-            </div>
-          {% endfor %}
+            {% for error in form.errors %}
+              <div class="alert alert-danger"
+                   role="alert">
+                {{ error|escape }}
+              </div>
+            {% endfor %}
           {% if 'edit' in request.path %}
             <form method="post"
                   action="{% url 'post_edit' post.author.username post.id %}">
