@@ -68,7 +68,7 @@ class StaticURLTests(TestCase):
         group = Group.objects.create(
             title='testgroup',
             description='test description',
-            slug=1
+            slug='1'
         )
         response = self.authorized_client.post(
             reverse(
@@ -86,24 +86,23 @@ class StaticURLTests(TestCase):
         self.assertEqual(group.title, 'testgroup')
 
     def test_post_existence(self):
-        post = Post.objects.create(author=self.user,
-                                   text='Текст публикации')
-        response_index = self.authorized_client.get(reverse('index'))
-        response_profile = self.authorized_client.get(
-            reverse(
-                'profile',
-                kwargs={'username': self.user.username}
-            )
+        group = Group.objects.create(
+            title='testgroup',
+            description='test description',
+            slug='1'
         )
-        response_post = self.authorized_client.get(
+        post = Post.objects.create(author=self.user,
+                                   text='Текст публикации',
+                                   group=group)
+        urls = [
+            reverse('index'),
+            reverse('profile', args=[self.user.username]),
             reverse(
                 'post',
-                kwargs={
-                    'username': self.user.username,
-                    'post_id': post.id
-                }
-            )
-        )
-        self.assertContains(response_index, 'Текст публикации')
-        self.assertContains(response_profile, 'Текст публикации')
-        self.assertContains(response_post, 'Текст публикации')
+                args=[self.user.username, post.id]
+            ),
+            reverse('group_posts', args=[group.id])
+        ]
+        for url in urls:
+            response = self.authorized_client.get(url)
+            self.assertContains(response, 'Текст публикации')
