@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block header %}
-  {% if 'edit' in request.path %}
-    Редактируем запись
-  {% else %}
-    Новая запись
-  {% endif %}
+  {% if post %}Редактируем запись{% else %}Новая запись{% endif %}
 {% endblock %}
 {% block content %}
   {% load user_filters %}
@@ -12,7 +8,7 @@
   <div class="row justify-content-center">
     <div class="col-md-8 p-5">
       <div class="card">
-        {% if 'edit' in request.path %}
+        {% if post %}
           <div class="card-header">Редактируем пост</div>
         {% else %}
           <div class="card-header">Новый пост</div>
@@ -25,13 +21,12 @@
                 {{ error|escape }}
               </div>
             {% endfor %}
-          {% if 'edit' in request.path %}
-            <form method="post"
+          <form method="post"
+                {% if post %}
                   action="{% url 'post_edit' post.author.username post.id %}">
-          {% else %}
-            <form method="post"
+                {% else %}
                   action="{% url 'new_post' %}">
-          {% endif %}
+                {% endif %}
             {% csrf_token %}
 
             {% for field in form %}
@@ -51,21 +46,7 @@
                 </div>
               </div>
             {% endfor %}
-            {% if 'edit' in request.path %}
-              <div class="col-md-6 offset-md-4">
-                <button type="submit"
-                        class="btn btn-primary">
-                  Сохранить
-                </button>
-              </div>
-            {% else %}
-              <div class="col-md-6 offset-md-4">
-                <button type="submit"
-                        class="btn btn-primary">
-                  Создать
-                </button>
-              </div>
-            {% endif %}
+            <div class="col-md-6 offset-md-4"><button type="submit"class="btn btn-primary">{% if post %}Сохранить{% else %}Создать{% endif %}</button></div>
           </form>
         </div> <!-- card body -->
       </div> <!-- card -->
