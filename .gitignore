@@ -17,6 +17,6 @@ __pycache__/
 *.sublime-workspace
 
 static/
-posts/static/
+static/
 
 db.sqlite3

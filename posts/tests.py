@@ -35,8 +35,8 @@ class StaticURLTests(TestCase):
         self.assertEqual(response.status_code, 200)
         post = Post.objects.first()
         self.assertEqual(post.text, 'текст публикации')
-        self.assertEqual(post.author.username, 'dimabuslaev')
-        self.assertEqual(post.group.title, 'testgroup')
+        self.assertEqual(post.author.username, self.user.username)
+        self.assertEqual(post.group.title, group.title)
 
     def test_unauthorized_user_newpage(self):
         response = self.unauthorized_client.get(
@@ -45,7 +45,7 @@ class StaticURLTests(TestCase):
         )
         self.assertRedirects(
             response,
-            '/auth/login/?next=/new/',
+            f'{reverse("login")}?next={reverse("new_post")}',
             status_code=302,
             target_status_code=200
         )
@@ -83,7 +83,7 @@ class StaticURLTests(TestCase):
         self.assertEqual(response.status_code, 200)
         target_post.refresh_from_db()
         self.assertEqual(target_post.text, 'Этот текст публикации изменён')
-        self.assertEqual(group.title, 'testgroup')
+        self.assertEqual(target_post.group.title, group.title)
 
     def test_post_existence(self):
         group = Group.objects.create(
@@ -104,5 +104,10 @@ class StaticURLTests(TestCase):
             reverse('group_posts', args=[group.id])
         ]
         for url in urls:
-            response = self.authorized_client.get(url)
-            self.assertContains(response, 'Текст публикации')
+            with self.subTest():
+                response = self.authorized_client.get(url)
+                if f'{self.user.username}' in url:
+                    post_test = response.context['post']
+                else:
+                    post_test = response.context['page'][0]
+                self.assertEqual(post_test.text, 'Текст публикации')

@@ -21,12 +21,12 @@
                 {{ error|escape }}
               </div>
             {% endfor %}
-          <form method="post"
+          <form method="post" action="
                 {% if post %}
-                  action="{% url 'post_edit' post.author.username post.id %}">
+                  {% url 'post_edit' post.author.username post.id %}
                 {% else %}
-                  action="{% url 'new_post' %}">
-                {% endif %}
+                  {% url 'new_post' %}
+                {% endif %}">
             {% csrf_token %}
 
             {% for field in form %}
