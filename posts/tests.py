@@ -106,8 +106,9 @@ class StaticURLTests(TestCase):
         for url in urls:
             with self.subTest():
                 response = self.authorized_client.get(url)
-                if f'{self.user.username}' in url:
+                if 'post' in response.context:
                     post_test = response.context['post']
                 else:
                     post_test = response.context['page'][0]
                 self.assertEqual(post_test.text, 'Текст публикации')
+                self.assertEqual(post_test.group.title, group.title)
